@@ -1,11 +1,18 @@
 # 3-phase-muino-sensor
-The 3-phae Muino sensor (encoder like) sensor. This can be use to connect with any meter and be made 
+Introducing the 3-Phase Muino Sensor, an encoder-like sensor that redefines the way we capture and utilize analog data. This cutting-edge technology harnesses the power of three phases to provide highly accurate measurements, enabling you to tackle a wide range of applications. Whether you need precise positioning data, advanced control algorithms, or efficient energy monitoring, the 3-Phase Muino Sensor is your gateway to enhanced performance and innovation. Explore its capabilities and discover the future of analog sensor solutions.
 
-
-
+https://www.tindie.com/products/muino/3-phase-muino-light-sensor-encoder/
 
 <img src="./img/circle_tape.png" alt="3 lightsensor sensor" height="350" class="center"/>
 
+## Sensor usecases
+In today's world, many analog sensors rely on rotating disks, like the one illustrated below, to convert physical movements into measurable data. By digitizing the analog output of these sensors, you can precisely monitor and track various positions. Imagine applying this technology to create a water meter algorithm, ensuring efficient and accurate measurements.
+
+Take a look at this illustrative figure of a disk that demonstrates the possibilities:
+
+<img src="./img/ring.jpg" alt="3 lightsensor sensor" height="200" class="center"/>
+
+Unlock the potential of analog sensor data with our innovative solutions. 
 ## Diagram
 
 The following diagaram is explained in the following bullet points
