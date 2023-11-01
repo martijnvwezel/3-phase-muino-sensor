@@ -39,7 +39,7 @@ The light sensors used in the circuit are VEML6030-GS15. These sensors are essen
 
 ### IO Extender
 
-An IO extender is used in the circuit to enable the LED and ensure that the correct light sensor is communicated with. The interrupt pins of the light sensors are connected to create a low-power setup that initiates reading when the sensor value reaches a certain threshold. This setup allows the system to wake up for readings when necessary.
+An IO extender is used in the circuit to enable the LED and ensure that the correct light sensor is communicated with. The interrupt pins of the light sensors are connected to create a low-power setup that initiates reading when the sensor value reaches a certain threshold. This setup allows the system to wake up for readings when necessary. [PI4IOE5V6408](https://www.diodes.com/assets/Datasheets/PI4IOE5V6408.pdf)
 
 ### Connector Header
 
