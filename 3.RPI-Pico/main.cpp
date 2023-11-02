@@ -23,19 +23,21 @@ void init_i2c(){
     i2c_init(i2c1, 100 * 1000); // max 400KHz for light sensor
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+    i2c_set_slave_mode(i2c1, false, 0x00);
     bi_decl(bi_2pins_with_func(I2C_SDA, I2C_SCL, GPIO_FUNC_I2C));
 }
-
+void set_pin_high(uint8_t pin_number) {
+    // Set the output state for the specified pin
+    uint8_t output_data[] = {0x05, (uint8_t)(1 << pin_number)};
+    i2c_write_blocking(i2c1, IO_EXTENDER_I2C_ADDR, output_data, 2, false);
+}
 void init_IO_extender(){
-    printf("set pin high.....");
-    // Configure the PI4IOE5V6408 to input mode
-    uint8_t config_data[] = {0x01, 0xff}; // Configure all pins as inputs, except pin led
-    i2c_write_blocking(i2c0, IO_EXTENDER_I2C_ADDR, config_data, 2, false);
-    printf("set pin high");
-    // Set LED to HIGH
-    uint8_t output_data[] = {0x02, 0xff};
-    i2c_write_blocking(i2c0, IO_EXTENDER_I2C_ADDR, output_data, 2, false);
-    printf("set pin high");
+    uint8_t pin_number = 6; 
+    printf("Configuring I/O Direction...\n");
+    uint8_t output_data[] = {0x03, (uint8_t)(1 << pin_number)};
+    i2c_write_blocking(i2c1, IO_EXTENDER_I2C_ADDR, output_data, 2, false);
+    printf("I/O Direction configured.\n");
+    set_pin_high(pin_number);
 }
 
 
@@ -45,7 +47,7 @@ int read_sensor(int sensor_id){
     i2c_write_blocking(i2c1, VEML6030_I2C_ADDR, NULL, 0, true); // start sensor
 
     uint8_t data[2];
-    i2c_read_blocking(i2c0, VEML6030_I2C_ADDR, data, 2, false); // Read 2 bytes of data
+    i2c_read_blocking(i2c1, VEML6030_I2C_ADDR, data, 2, false); // Read 2 bytes of data
 
     // Calculate the light intensity from the received data
     uint16_t light_data = (data[1] << 8) | data[0];
