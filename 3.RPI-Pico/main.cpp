@@ -67,6 +67,8 @@ void init_i2c() {
     gpio_pull_up(I2C_SCL);
 
     bi_decl(bi_2pins_with_func(I2C_SDA, I2C_SCL, GPIO_FUNC_I2C));
+
+    init_IO_extender();
 }
 
 void set_pin_io(uint8_t pin_number, bool value) {

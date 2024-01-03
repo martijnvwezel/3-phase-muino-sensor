@@ -1,0 +1,13 @@
+{
+    "gitlab.instanceUrl": "https://gitlab.muino.nl/",
+    // "cortex-debug.openocdPath": "${workspaceRoot}/tools/openocd/bin/openocd.exe",
+    "cortex-debug.openocdPath": "${workspaceRoot}/tools/openocd/bin/openocd",
+    "files.associations": {
+        "*.gs": "javascript",
+        "cstring": "cpp",
+        "ringbuffer.h": "c",
+        "string_view": "cpp"
+    },
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+}
