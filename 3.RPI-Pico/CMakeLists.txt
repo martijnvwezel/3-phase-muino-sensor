@@ -22,14 +22,14 @@ if (TARGET tinyusb_device)
 
     # Rest of your project
     add_executable(watermeter # projectname
-        main.cpp # main file
+        src/main.cpp # main file
     )
 
     add_definitions(-DPICO_STDIO_USB_ENABLE_RESET_VIA_BAUD_RATE=1)
     add_definitions(-DPICO_DEFAULT_UART_BAUD_RATE=115200)
 
     # pull in common dependencies and additional i2c hardware support
-    target_link_libraries(watermeter pico_stdlib hardware_i2c)
+    target_link_libraries(watermeter pico_stdlib hardware_i2c )
 
     # Enable usb output, enable uart output
     pico_enable_stdio_usb(watermeter 1)
