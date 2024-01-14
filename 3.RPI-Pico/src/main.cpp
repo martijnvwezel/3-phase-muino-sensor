@@ -70,7 +70,7 @@ void init_i2c() {
 
     bi_decl(bi_2pins_with_func(I2C_SDA, I2C_SCL, GPIO_FUNC_I2C));
 
-    init_IO_extender();
+    // init_IO_extender();
 }
 
 void set_pin_io(uint8_t pin_number, bool value) {
@@ -102,35 +102,22 @@ void init_IO_extender() {
 
     // ---  configure lightsensor 0
     write_reg(PI4IO_OUTPUT, (1 << 3) | LED);
-    sleep_us(250);
-    write_reg_light(0x00, 1); // 0x1 means standby/shutdown
-    printf("output %d - ", read_reg_light(0x04));
+
     write_reg_light(0x00,  1 << 11);
+    // ms25 = 0b1100
+    // ms50 = 0b1000
+    // ms100 = 0b0000
+    // ms200 = 0b0001
+    // ms400 = 0b0010
+    // ms800 = 0b0011
    
-    // Enable ALS_SD sensor on
-    write_reg_light(0x00, 0); // 0x1 means standby/shutdown
-    
-    
-    // ---  configure lightsensor 1
-    write_reg(PI4IO_OUTPUT, (1 << 4) | LED);
-    sleep_us(250);
-    write_reg_light(0x00, 1); // 0x1 means standby/shutdown
+
+
     printf("output %d - ", read_reg_light(0x04));
-    write_reg_light(0x00,  1 << 11);
-
     // Enable ALS_SD sensor on
     write_reg_light(0x00, 0); // 0x1 means standby/shutdown
+    write_reg_light(0x00,  1 << 11 | ((1<<6)|(1<<7)));
 
-
-    // ---  configure lightsensor 2
-    write_reg(PI4IO_OUTPUT, (1 << 5) | LED);
-    sleep_us(250);
-    write_reg_light(0x00, 1); // 0x1 means standby/shutdown
-    printf("output %d - ", read_reg_light(0x04));
-    write_reg_light(0x00,  1 << 11);
-
-    // Enable ALS_SD sensor on
-    write_reg_light(0x00, 0); // 0x1 means standby/shutdown
 
 }
 
@@ -144,7 +131,9 @@ int read_sensor(int sensor_id) {
     } else {
         return -1;
     }
-
+    
+    // gain x2 and 800ms 
+    write_reg_light(0x00,  1 << 11 | ((1<<6)|(1<<7)));
 
     // ALS response
     return read_reg_light(0x04);

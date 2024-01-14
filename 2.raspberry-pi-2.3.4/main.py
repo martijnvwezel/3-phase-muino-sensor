@@ -160,7 +160,7 @@ class VEML6030(object):
         # Initialize sensor with default values
         self.power_on()
         self.set_gain(Gain.x2)
-        self.set_integration_time(IntegrationTime.ms100)
+        self.set_integration_time(IntegrationTime.ms800)
 
     def set_gain(self, gain):
         """
@@ -506,16 +506,19 @@ class IOEXTENDER():
         
     def init(self):
         self._write_register(0x01, 1)
-        print(f"Device ID {self._read_register(self.PI4IO_I2C_ADDR)}")
+        sleep(0.001)
+        print(f"Device ID {self.bus.read_byte_data(self.PI4IO_I2C_ADDR, self.PI4IO_I2C_ADDR)}")
 
         # * Setup pins # TODO fix the following code
-        self._write_register(self.PI4IO_IO_DIRECTION, (1 << 3) | (1 << 4) | (1 << 5) | self.LED)    
-        self._write_register(self.PI4IO_OUTPUT,  self.LED)    
-        self._write_register(self.PI4IO_OUTPUT_HI_IMPEDANCE,  ~(1 << 3) | (1 << 4) | (1 << 5) | self.LED)    
+        self.bus.write_byte_data(self.PI4IO_I2C_ADDR, self.PI4IO_IO_DIRECTION, 120)     # (1 << 3) | (1 << 4) | (1 << 5) | self.LED
+        self.bus.write_byte_data(self.PI4IO_I2C_ADDR, self.PI4IO_OUTPUT,  self.LED)    
+        self.bus.write_byte_data(self.PI4IO_I2C_ADDR, self.PI4IO_OUTPUT_HI_IMPEDANCE,  ~120)    
 
         print(f"IODIR: {self._read_register(0x03)}")
         print(f"Output: {self._read_register(self.PI4IO_OUTPUT)}")
         print(f"HighZ: {self._read_register(self.PI4IO_OUTPUT)}")
+
+
 
     def _write_bits_to_register(self, register, value, index, length=1):
         """
@@ -552,9 +555,26 @@ class IOEXTENDER():
         :param value: Word to write to register
         :type value: int
         """
-        self.bus.write_word_data(self.PI4IO_I2C_ADDR, register, value)
+        self.bus.write_byte_data(self.PI4IO_I2C_ADDR, register, value)
 
 
+    def select_read_sensor(self, sensor_id):
+        if sensor_id == 0:
+            self._write_register(self.PI4IO_OUTPUT, (1 << 3) | self.LED)
+        elif sensor_id == 1:
+            self._write_register(self.PI4IO_OUTPUT, (1 << 4) | self.LED)
+        elif sensor_id == 2:
+            self._write_register(self.PI4IO_OUTPUT, (1 << 5) | self.LED)
+        else:
+            return -1
+
+        return self._read_register(1)
+
+
+ 
+def read_light_sensor(VEML6030, IOEXTENDER, sensor_id):
+    IOEXTENDER.select_read_sensor(sensor_id)
+    return VEML6030._read_register(AMBIENT_LIGHT_DATA_REG)
 
 import smbus
 from time import sleep
@@ -563,6 +583,8 @@ bus = smbus.SMBus(1)  # For Raspberry Pi
 sensor = VEML6030(bus, ADDRESS[1])
 ioextender = IOEXTENDER(bus)
 
+sensor.set_gain(Gain.x2)
+sensor.set_integration_time(IntegrationTime.ms100)
 while True:
-    print(f"Light value: {sensor.read_light()}")
-    sleep(0.5)
+    print(f"{read_light_sensor(sensor, ioextender, 0)}\t{read_light_sensor(sensor, ioextender, 1)}\t{read_light_sensor(sensor, ioextender, 2)}")
+    sleep(0.2)
