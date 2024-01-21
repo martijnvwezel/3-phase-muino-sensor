@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "arm",
+            "displayName": "GCC 9.2.1 arm-none-eabi",
+            "description": "Using compilers: C = /bin/arm-none-eabi-gcc-9.2.1",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/bin/arm-none-eabi-gcc-9.2.1",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
+}

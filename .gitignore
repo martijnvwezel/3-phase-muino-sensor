@@ -1,2 +1,4 @@
 3.RPI-Pico/build/*
 3.RPI-Pico/tools/openocd/*
+5.ESP32/i2c/build/*
+5.ESP32/i2c/old/*

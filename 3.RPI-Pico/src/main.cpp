@@ -155,7 +155,7 @@ int main() {
     // * Enable LED on the board
     set_pin_io(LED, true);
 
-    while (true) {
+    while (false) {
         // * Continuesly print values of the 3 light sensors
         printf("%d\t%d\t%d\n", read_sensor(0), read_sensor(1), read_sensor(2));
         sleep_ms(100);
