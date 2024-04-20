@@ -1,3 +1,8 @@
+// Sensor devs for the Muino water meter
+
+// * Calibration value for the algorithm
+#define SMOOTHING_FACTOR 3 // 2 - 10
+
 // * Light-sensor defs
 #define VEML6030_I2C_ADDR_H 0x48
 #define VEML6030_ALS_SD 0x00
@@ -17,14 +22,19 @@
 
 
 // * Defines for IO-extender
-#define LED 1 << 6
-#define SENS0 1 << 3
-#define SENS1 1 << 4
-#define SENS2 1 << 5
-
+#define SENS0 0b00001000
+#define SENS1 0b00010000
+#define SENS2 0b00100000
+#define LED   0b01000000
 /************************************************
  * Devices
  ************************************************/
 
 static uint16_t read_sensor(uint8_t sensor_id, bool led_on);
 static void set_pin_io(uint8_t pin_number, bool value);
+
+
+// extern state_t state;
+
+
+

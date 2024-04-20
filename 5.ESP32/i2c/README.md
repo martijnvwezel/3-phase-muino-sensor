@@ -12,7 +12,9 @@ idf.py build
 # flash
 idf.py -p COM5 flash
 # see logs 
-idf.py -p COM5  monitor
+idf.py -p COM5  monitor --no-reset
+
+# --no-reset so that jtag does not reset device
 
 ```
 
