@@ -57,12 +57,6 @@ void app_main(void)
         /* Initialize RTC I2C */
         init_i2c();
 
-        /* Configure I2C slave address */
-        ulp_riscv_i2c_master_set_slave_addr(PI4IO_I2C_ADDR);
-
-        ulp_timer_stop();
-        ulp_riscv_halt();
-
         init_ulp_program();
     }
 
@@ -71,15 +65,18 @@ void app_main(void)
         /* Pause ULP while we are using the RTC I2C from the main CPU */
         ulp_timer_stop();
         ulp_riscv_halt();
+        printf("Muino liters: %ld\n", ulp_temp_reg_val);
+
+        
 
         /* Resume ULP and go to deep sleep again */
         ulp_timer_resume();
 
         /* Add a delay for everything to the printed before heading in to deep sleep */
         
-        printf("ULP RISC-V woke up the main CPU\n");
-        printf("liter:1:is being found!\n");
-        vTaskDelay(10000);
+        // printf("ULP RISC-V woke up the main CPU\n");
+        // printf("liter:1:is being found!\n");
+        // vTaskDelay(10000);
 
     }
 
@@ -156,81 +153,13 @@ static void init_i2c(void)
     // };
 
 
+    i2c_cfg = (ulp_riscv_i2c_cfg_t)ULP_RISCV_I2C_DEFAULT_CONFIG();
     esp_err_t ret = ulp_riscv_i2c_master_init(&i2c_cfg);
     if (ret!= ESP_OK) {
         printf("ERROR: Failed to initialize RTC I2C. Aborting...\n");
         abort();
     }
 }
-
-static void set_pin_io(uint8_t pin_number, bool value){
-
-    uint8_t data_wr = pin_number;
-
-    if(!value) {
-        data_wr = ~data_wr;
-    }
-
-    ulp_riscv_i2c_master_set_slave_addr(PI4IO_I2C_ADDR);
-    ulp_riscv_i2c_master_set_slave_reg_addr(PI4IO_OUTPUT);
-    ulp_riscv_i2c_master_write_to_device(&data_wr, 1);
-}
-
-static uint16_t read_sensor(uint8_t sensor_id, bool led_on) {
-    uint8_t reg = 0x00;
-    if (sensor_id == 0) {
-        reg = SENS0;
-    } else if (sensor_id == 1) {
-        reg = SENS1;
-    } else if (sensor_id == 2) {
-        reg = SENS2;
-    } else {
-        return -1;
-    }
-    
-    if(!led_on)
-        reg &= ~LED;
-    else
-        reg |= LED;
-
-    set_pin_io(reg, true); // Always true !
-
-    // * Make sure LIGHT sensor add is called
-    ulp_riscv_i2c_master_set_slave_addr(VEML6030_I2C_ADDR_H);
-
-    // Gain x2 and 800ms 
-    // printf("set gain and ms..\n");
-    uint8_t data_wr = (uint8_t)((1 << 11) | ((1<<6)|(1<<7)));
-    ulp_riscv_i2c_master_set_slave_reg_addr(VEML6030_ALS_SD);
-    ulp_riscv_i2c_master_write_to_device(&data_wr, 1);
-    
-    // * Read value
-    printf("read data..\n");
-    uint8_t data_rd[2] = {0x00, 0x00};
-
-    ulp_riscv_i2c_master_set_slave_reg_addr(VEML6030_ALS_READ_REG);
-    ulp_riscv_i2c_master_read_from_device(data_rd, 2);
-    // vTaskDelay(100);
-
-    return ((uint16_t)data_rd[0] << 8) | data_rd[1];
-    // return (uint16_t) data_rd[0];
-}
-
-
-
-// static void veml6030_read16(uint16_t *data_out, uint32_t reg_msb, uint32_t reg_lsb)
-// {
-//     uint8_t data_rd = 0;
-//     *data_out = 0;
-
-//     ulp_riscv_i2c_master_set_slave_reg_addr(reg_msb);
-//     ulp_riscv_i2c_master_read_from_device(&data_rd, 1);
-//     *data_out |= (uint16_t)(data_rd << 8);
-//     ulp_riscv_i2c_master_set_slave_reg_addr(reg_lsb);
-//     data_rd = 0;
-//     ulp_riscv_i2c_master_read_from_device(&data_rd, 1);
-//     *data_out |= (uint16_t)(data_rd);
-// }
 
 static void init_ulp_program(void)
 {

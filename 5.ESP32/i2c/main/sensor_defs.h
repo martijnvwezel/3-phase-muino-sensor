@@ -30,11 +30,6 @@
  * Devices
  ************************************************/
 
-static uint16_t read_sensor(uint8_t sensor_id, bool led_on);
-static void set_pin_io(uint8_t pin_number, bool value);
-
-
-// extern state_t state;
 
 
 

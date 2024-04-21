@@ -66,20 +66,21 @@ int main(void) {
     static uint32_t old_liters_update = 0;
     uint32_t bliep = 0;
 
-
-
     /* Setup pin direction io extender*/
     uint8_t data_wr = SENS0 | SENS1 | SENS2 | LED;
+    ulp_riscv_i2c_master_set_slave_addr(PI4IO_I2C_ADDR);
     ulp_riscv_i2c_master_set_slave_reg_addr(PI4IO_IO_DIRECTION);
     ulp_riscv_i2c_master_write_to_device(&data_wr, 1);
 
     /* Setup pin output */
     data_wr = LED;
+    ulp_riscv_i2c_master_set_slave_addr(PI4IO_I2C_ADDR);
     ulp_riscv_i2c_master_set_slave_reg_addr(PI4IO_OUTPUT);
     ulp_riscv_i2c_master_write_to_device(&data_wr, 1);
 
     /* Setup pin impedance */
     data_wr = ~(SENS0 | SENS1 | SENS2 | LED);
+    ulp_riscv_i2c_master_set_slave_addr(PI4IO_I2C_ADDR);
     ulp_riscv_i2c_master_set_slave_reg_addr(PI4IO_OUTPUT_HI_IMPEDANCE);
     ulp_riscv_i2c_master_write_to_device(&data_wr, 1);
 
@@ -87,33 +88,62 @@ int main(void) {
         
         // * Enable LED on the board
         set_pin_io(LED, true);
-        ulp_riscv_delay_cycles(150 * ULP_RISCV_CYCLES_PER_MS);
+        ulp_riscv_delay_cycles(50 * ULP_RISCV_CYCLES_PER_MS);
         uint16_t sen_a_light = read_sensor(0, true);
-        uint16_t sen_b_light = read_sensor(0, true);
-        uint16_t sen_c_light = read_sensor(0, true);
+        uint16_t sen_b_light = read_sensor(1, true);
+        uint16_t sen_c_light = read_sensor(2, true);
 
-  
-        if ( sen_a_light > 100 || bliep++ > 60) {
-            old_liters_update = state.liters;
-            ulp_riscv_wakeup_main_processor();
+        //  * For debugging only code 
+        if ( sen_a_light > 5000 || bliep++ > 60) {
+            // old_liters_update = state.liters;
             temp_reg_val = sen_a_light;
+            // temp_reg_val = state.muino_ml_meters;
+
+            // * Wake up main processor
+            ulp_riscv_wakeup_main_processor();
         }
 
         // * Disable LED on the board
         set_pin_io(LED, false);
-        ulp_riscv_delay_cycles(850 * ULP_RISCV_CYCLES_PER_MS);
-        // ulp_riscv_delay_cycles(1000 * ULP_RISCV_CYCLES_PER_MS);
-
+        ulp_riscv_delay_cycles(1000 * ULP_RISCV_CYCLES_PER_MS);
+        
+        // * Remove noisy data
         uint16_t sen_a = sen_a_light - read_sensor(0, false);
-        uint16_t sen_b = sen_b_light - read_sensor(0, false);
-        uint16_t sen_c = sen_c_light - read_sensor(0, false);
+        uint16_t sen_b = sen_b_light - read_sensor(1, false);
+        uint16_t sen_c = sen_c_light - read_sensor(2, false);
 
-        bool send = magic_code_box(&state, sen_a, sen_b, sen_c);
 
-        /* Wakeup the main CPU if either the uncompensated temperature or uncompensated pressure values
-         * are more than their respective threshold values.
-         */
-        // state.liters > (old_liters_update + 1) ||
+        // * Check if significant change happened
+        const float threshold = 5.0; // percentage threshold for significant change
+        bool significant_change = false;
+        
+        static uint16_t prev_sen_a;
+        static uint16_t prev_sen_b;
+        static uint16_t prev_sen_c;
+
+        uint16_t threshold_a = prev_sen_a * threshold / 100;
+        uint16_t threshold_b = prev_sen_b * threshold / 100;
+        uint16_t threshold_c = prev_sen_c * threshold / 100;
+
+        // * Calculate percentage change for each sensor and determine significant change
+        // ! don't try to optime with abs(), will not fit in RAM
+        if ((sen_a > prev_sen_a + threshold_a || sen_a < prev_sen_a - threshold_a) ||
+            (sen_b > prev_sen_b + threshold_b || sen_b < prev_sen_b - threshold_b) ||
+            (sen_c > prev_sen_c + threshold_c || sen_c < prev_sen_c - threshold_c)) {
+            significant_change = true;
+            // Update previous sensor values
+            prev_sen_a = sen_a;
+            prev_sen_b = sen_b;
+            prev_sen_c = sen_c;
+        }
+
+
+        // * Do the magic calculation
+        if (significant_change) {
+            bool send = magic_code_box(&state, sen_a, sen_b, sen_c);
+        }
+
+
 
     }
     return 0;
@@ -143,27 +173,31 @@ static volatile inline uint16_t read_sensor(uint8_t sensor_id, bool led_on) {
         return -1;
     }
 
-    if (!led_on)
-        reg &= ~LED;
-    else
+    if (led_on)
         reg |= LED;
+    // else
+    //     reg &= ~LED;
+       
 
     set_pin_io(reg, true); // Always true !
     // ulp_riscv_delay_cycles(50 * ULP_RISCV_CYCLES_PER_MS);
     // * Make sure LIGHT sensor add is called
-    ulp_riscv_i2c_master_set_slave_addr(VEML6030_I2C_ADDR_H);
 
     
 
     // Gain x2 and 800ms
     // uint16_t data_wr = (uint16_t)((1 << 11) | ((1 << 6) | (1 << 7)));
-    uint8_t data_wr[2] = {0x00, 0x00};
+    // uint8_t data_wr[2] = {(1 << 3), (1 << 6) | (1 << 7)};  // 1<<11 -> 1<<3
+    uint8_t data_wr[2] = {1<<3, 0x00};
+    // uint16_t data_wr = 0x0000;
+    ulp_riscv_i2c_master_set_slave_addr(VEML6030_I2C_ADDR_H);
     ulp_riscv_i2c_master_set_slave_reg_addr(VEML6030_ALS_SD);
     ulp_riscv_i2c_master_write_to_device(data_wr, 2);
     // ulp_riscv_delay_cycles(50 * ULP_RISCV_CYCLES_PER_MS); // Delay to ensure stable I/O setup.
 
     // * Read value
     uint8_t data_rd[2] = {0x00, 0x00};
+    ulp_riscv_i2c_master_set_slave_addr(VEML6030_I2C_ADDR_H);
     ulp_riscv_i2c_master_set_slave_reg_addr(VEML6030_ALS_READ_REG);
     ulp_riscv_i2c_master_read_from_device(data_rd, 2);
 
@@ -202,7 +236,7 @@ bool magic_code_box(state_t* state, int sen_a, int sen_b, int sen_c) {
         }
     }
 
-    // // * Calculate minimum value
+    // * Calculate minimum value
     state->a_min = mini_average(state->a_min, sen_a, alpha_cor);
     state->b_min = mini_average(state->b_min, sen_b, alpha_cor);
     state->c_min = mini_average(state->c_min, sen_c, alpha_cor);
