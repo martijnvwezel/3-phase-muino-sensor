@@ -1,6 +1,0 @@
-{
-    "cmake.sourceDirectory": "C:/git/3-phase-muino-sensor/3.RPI-Pico",
-    "files.associations": {
-        "cmath": "cpp"
-    }
-}
