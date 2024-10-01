@@ -32,4 +32,22 @@
 
 
 
+typedef struct {
+    int8_t   phase;
+    int8_t   fine;
+    int32_t  liters;
+    uint32_t muino_ml_meters;
 
+    int a_min;
+    int b_min;
+    int c_min;
+
+    int a_max;
+    int b_max;
+    int c_max;
+
+    uint16_t sen_a_light;
+    uint16_t sen_b_light;
+    uint16_t sen_c_light;
+
+} state_t;
