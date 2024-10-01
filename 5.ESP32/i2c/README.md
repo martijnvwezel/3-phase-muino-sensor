@@ -1,43 +1,13 @@
-# what i did
-```bash 
-
-# Set device
-CONFIG_IDF_TARGET="esp32s3"
-# if already build
-idf.py fullclean 
-# activate chain
-idf.py set-target esp32s3
-# build
-idf.py build
-# flash
-idf.py -p COM5 flash
-# see logs 
-idf.py -p COM5  monitor --no-reset
-
-# --no-reset so that jtag does not reset device
-
-```
-
-# old stuff
-
-
-| Supported Targets | ESP32-S2 | ESP32-S3 |
+| Supported Targets | ESP32-S2 (not tested) | ESP32-S3 |
 | ----------------- | -------- | -------- |
 
-# ULP RISC-V I2C Example
 
-This example demonstrates how to use the RTC I2C peripheral from the ULP RISC-V coprocessor in deep sleep.
-
-The ULP program is based on the BMP180 Temperature and Pressure sensor (https://cz.mouser.com/datasheet/2/783/BST-BMP180-DS000-1509579.pdf) which has an I2C interface. The main CPU initializes the RTC I2C peripheral, the BMP180 sensor and loads the ULP program. It then goes into deep sleep.
-
-The ULP program periodically measures the temperature and pressure values from the BMP180 sensor and wakes up the main CPU when the values are above a certain threshold.
 
 ## How to use example
 
 ### Hardware Required
 
-* A development board with a SOC which has a RISC-V ULP coprocessor (e.g., ESP32-S2 Saola)
-* A BMP180 sensor module
+* A development board with a SOC which has a RISC-V ULP coprocessor (e.g., ESP32-S3)
 * A USB cable for power supply and programming
 
 #### Pin Assignment:
@@ -47,68 +17,34 @@ The ULP program periodically measures the temperature and pressure values from t
 |                             | SDA   | SCL   |
 | --------------------------- | ------| ------|
 | ESP32-S2/S3 RTC I2C Master  | GPIO3 | GPIO2 |
-| BMP180 Sensor               | SDA   | SCL   |
+| Muino Advance Sensor        | SDA   | SCL   |
 
 **Note:** The SDA line can only be configured to use either GPIO1 or GPIO3 and the SCL line can only be configured to use either GPIO0 or GPIO2.
-**Note:** This example enables the internal pull-up resistors for the SDA/SCL lines by default.
+**Note:** This enables the internal pull-up resistors for the SDA/SCL lines by default. What is not needed because the lines are already being pulled-up
 
-## Example output
 
-Below is the output from this example.
+#### Steps to compile and upload
+``` bash 
+
+# Set device
+CONFIG_IDF_TARGET="esp32s3"
+# if already build
+idf.py fullclean 
+# activate chain
+idf.py set-target esp32s3
+# build
+idf.py build
+# flash, COM port is for each pc different..
+idf.py -p COM5 flash
+# see logs 
+idf.py -p COM5  monitor --no-reset
+
+# --no-reset so that jtag does not reset device
 
 ```
-Not a ULP-RISC V wakeup (cause = 0)
-Initializing RTC I2C ...
-RTC_I2C_STATUS_REG = 0x00000000
-Reading calibration data from BMP180 ...
-ac1 = 7819
-ac2 = -1152
-ac3 = -14317
-ac4 = 34252
-ac5 = 25122
-ac6 = 14289
-b1 = 6515
-b2 = 44
-mb = -32768
-mc = -11786
-md = 2746
-
-Reading initial uncompensated temperature and pressure data ...
-Uncompensated Temperature = 22865
-Uncompensated Pressure = 41768
-
-Real Temperature = 24.900000 deg celcius
-Real Pressure = 990.640000 hPa
-
-Entering in deep sleep
-
-ESP-ROM:esp32s2-rc4-20191025
-Build:Oct 25 2019
-rst:0x5 (DSLEEP),boot:0x9 (SPI_FAST_FLASH_BOOT)
-SPIWP:0xee
-mode:DIO, clock div:1
-load:0x3ffe6108,len:0x1298
-load:0x4004c000,len:0x92c
-load:0x40050000,len:0x2f04
-entry 0x4004c154
-W (76) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
-ULP RISC-V woke up the main CPU
-Uncompensated Temperature = 22865
-Uncompensated Pressure = 41765
-Reading calibration data from BMP180 ...
-ac1 = 7819
-ac2 = -1152
-ac3 = -14317
-ac4 = 34252
-ac5 = 25122
-ac6 = 14289
-b1 = 6515
-b2 = 44
-mb = -32768
-mc = -11786
-md = 2746
-
-New Real Temperature = 24.900000 deg celcius
-New Real Pressure = 990.550000 hPa
-Entering in deep sleep
-```
+# Next steps to finish
+This is a project that is work in progress, its hard and consumes alot of time :)
+- [ ] Finetune the calibration functions to work with different ranges of values
+- [ ] Add improvements like putting the light sensor to sleep or use less of the LED light
+- [ ] Go to sleep but let WiFi shortly try to connect with fast connect wifi or other ways
+- [ ] Move all the code to ESPHome so other users can use it
