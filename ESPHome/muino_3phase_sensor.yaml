@@ -1,0 +1,69 @@
+esphome:
+  name: watermeterhome
+  platform: ESP32
+  board: esp32dev
+  includes:
+    - components/muino_3phase/muino_3phase_sensor.h
+
+# Add basic networking
+wifi:
+  #ssid: !secret wifi_ssid
+  #password: !secret wifi_password
+  
+  # Enable fallback hotspot in case of connection failure
+  ap:
+    ssid: "Watermeterhome Fallback"
+    password: "Watermeterhome Fallback"
+
+# Enable Over The Air updates
+ota:
+  password: "ota123456"
+
+# Enable API
+api:
+
+external_components:
+  - source: components
+    components: [ muino_3phase ]
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+
+logger:
+  level: VERY_VERBOSE
+
+sensor:
+  - platform: muino_3phase
+    id: water_meter_sensor
+    address: 0x43
+    flow:
+      name: "Water Flow"
+    total:
+      name: "Total Water Usage"
+    sensor_a:
+      name: "Sensor A Raw"
+    sensor_b:
+      name: "Sensor B Raw"
+    sensor_c:
+      name: "Sensor C Raw"
+
+button:
+  - platform: template
+    name: "Reset Water Meter"
+    on_press:
+      - lambda: 'id(water_meter_sensor).reset_total();'
+  
+  - platform: template
+    name: "Calibrate Water Meter"
+    on_press:
+      - lambda: 'id(water_meter_sensor).calibrate();'
+
+binary_sensor:
+  - platform: status
+    name: "Water Meter Status"
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version"
