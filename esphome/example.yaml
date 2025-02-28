@@ -31,7 +31,7 @@ ota:
 external_components:
   - source:
       type: git
-      url: https://github.com/hugokernel/3-phase-muino-sensor/esphome
+      url: https://github.com/martijnvwezel/3-phase-muino-sensor
     components: [ muino_3phase_i2c ]
 
 i2c:
