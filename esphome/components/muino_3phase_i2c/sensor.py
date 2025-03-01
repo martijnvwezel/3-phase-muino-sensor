@@ -3,6 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import i2c, sensor, text_sensor
 from esphome.const import (
     CONF_ID,
+    CONF_ACCURACY_DECIMALS,
     DEVICE_CLASS_WATER,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
@@ -14,6 +15,9 @@ from . import muino_3phase_i2c_ns, Muino3PhaseI2CSensor
 
 CONF_TOTAL = "total"
 CONF_ML = "ml"
+CONF_MAIN_CONSUMPTION = "main_consumption"
+CONF_SECONDARY_CONSUMPTION = "secondary_consumption"
+CONF_TERTIARY_CONSUMPTION = "tertiary_consumption"
 CONF_SENSOR_A = "sensor_a"
 CONF_SENSOR_B = "sensor_b"
 CONF_SENSOR_C = "sensor_c"
@@ -36,6 +40,30 @@ CONFIG_SCHEMA = cv.Schema({
         state_class=STATE_CLASS_TOTAL_INCREASING,
     ).extend({
         cv.Optional(CONF_UNIT_OF_MEASUREMENT, default='mL'): cv.string,
+    }),
+    cv.Optional(CONF_MAIN_CONSUMPTION): sensor.sensor_schema(
+        device_class=DEVICE_CLASS_WATER,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+        accuracy_decimals=1,
+    ).extend({
+        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
+        cv.Optional(CONF_ACCURACY_DECIMALS, default=1): cv.positive_int,
+    }),
+    cv.Optional(CONF_SECONDARY_CONSUMPTION): sensor.sensor_schema(
+        device_class=DEVICE_CLASS_WATER,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+        accuracy_decimals=1,
+    ).extend({
+        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
+        cv.Optional(CONF_ACCURACY_DECIMALS, default=1): cv.positive_int,
+    }),
+    cv.Optional(CONF_TERTIARY_CONSUMPTION): sensor.sensor_schema(
+        device_class=DEVICE_CLASS_WATER,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+        accuracy_decimals=1,
+    ).extend({
+        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
+        cv.Optional(CONF_ACCURACY_DECIMALS, default=1): cv.positive_int,
     }),
     cv.Optional(CONF_TIME_SINCE_LAST_FLOW): sensor.sensor_schema(
         unit_of_measurement="s",
@@ -64,6 +92,18 @@ async def to_code(config):
     if CONF_ML in config:
         sens = await sensor.new_sensor(config[CONF_ML])
         cg.add(var.set_ml_sensor(sens))
+
+    if CONF_MAIN_CONSUMPTION in config:
+        sens = await sensor.new_sensor(config[CONF_MAIN_CONSUMPTION])
+        cg.add(var.set_main_consumption_sensor(sens))
+
+    if CONF_SECONDARY_CONSUMPTION in config:
+        sens = await sensor.new_sensor(config[CONF_SECONDARY_CONSUMPTION])
+        cg.add(var.set_secondary_consumption_sensor(sens))
+
+    if CONF_TERTIARY_CONSUMPTION in config:
+        sens = await sensor.new_sensor(config[CONF_TERTIARY_CONSUMPTION])
+        cg.add(var.set_tertiary_consumption_sensor(sens))
 
     if CONF_TIME_SINCE_LAST_FLOW in config:
         sens = await sensor.new_sensor(config[CONF_TIME_SINCE_LAST_FLOW])

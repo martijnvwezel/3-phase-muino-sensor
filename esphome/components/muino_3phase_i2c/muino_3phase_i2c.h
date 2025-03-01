@@ -25,6 +25,9 @@ public:
 
     void set_total_sensor(sensor::Sensor *sensor) { total_sensor_ = sensor; }
     void set_ml_sensor(sensor::Sensor *sensor) { ml_sensor_ = sensor; }
+    void set_main_consumption_sensor(sensor::Sensor *sensor) { main_consumption_sensor_ = sensor; }
+    void set_secondary_consumption_sensor(sensor::Sensor *sensor) { secondary_consumption_sensor_ = sensor; }
+    void set_tertiary_consumption_sensor(sensor::Sensor *sensor) { tertiary_consumption_sensor_ = sensor; }
     void set_sensor_a(text_sensor::TextSensor *sensor) { a_sensor_ = sensor; }
     void set_sensor_b(text_sensor::TextSensor *sensor) { b_sensor_ = sensor; }
     void set_sensor_c(text_sensor::TextSensor *sensor) { c_sensor_ = sensor; }
@@ -33,6 +36,9 @@ public:
     void set_last_consumption(sensor::Sensor *sensor) { last_consumption_sensor_ = sensor; }
 
     void reset_total();
+    void reset_main_consumption();
+    void reset_secondary_consumption();
+    void reset_tertiary_consumption();
 
     bool phase_coarse(int sen_a, int sen_b, int sen_c);
     float mini_average(float x, float y, float alpha_cor);
@@ -45,6 +51,16 @@ public:
     }
 
     state_t state;
+
+    uint32_t main_consumption;
+    uint32_t secondary_consumption;
+    uint32_t tertiary_consumption;
+
+    // Used during the reset consumption to be able
+    // to set 0 for the ml part
+    float main_ml_reset;
+    float secondary_ml_reset;
+    float tertiary_ml_reset;
 
 protected:
     bool init_ok = false;
@@ -72,6 +88,9 @@ protected:
 
     sensor::Sensor *total_sensor_{nullptr};
     sensor::Sensor *ml_sensor_{nullptr};
+    sensor::Sensor *main_consumption_sensor_{nullptr};
+    sensor::Sensor *secondary_consumption_sensor_{nullptr};
+    sensor::Sensor *tertiary_consumption_sensor_{nullptr};
     text_sensor::TextSensor *a_sensor_{nullptr};
     text_sensor::TextSensor *b_sensor_{nullptr};
     text_sensor::TextSensor *c_sensor_{nullptr};
@@ -92,6 +111,7 @@ protected:
     bool write_light_sensor_(uint8_t reg, uint16_t val);
     void save_total_();
     void update_values_();
+    void update_consumption(int8_t value);
 };
 
 } // namespace muino_3phase_i2c

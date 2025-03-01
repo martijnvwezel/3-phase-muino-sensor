@@ -87,12 +87,23 @@ bool Muino3PhaseI2CSensor::phase_coarse(int a, int b, int c) {
         state.liters++;
         state.phase = 0;
 
-        last_consumption_++;
+        update_consumption(1);
     }
-    else if (state.phase == -1)
-        state.liters--, state.phase = 5;
+    else if (state.phase == -1) {
+        state.liters--;
+        state.phase = 5;
+
+        update_consumption(-1);
+    }
 
     return true;
+}
+
+void Muino3PhaseI2CSensor::update_consumption(int8_t value) {
+    main_consumption += value;
+    secondary_consumption += value;
+    tertiary_consumption += value;
+    last_consumption_ += value;
 }
 
 float Muino3PhaseI2CSensor::mini_average(float x, float y, float alpha_cor) {
@@ -246,16 +257,41 @@ void Muino3PhaseI2CSensor::setup() {
     state.a_max = 0;
     state.b_max = 0;
     state.c_max = 0;
+
+    main_consumption = 0;
+    secondary_consumption = 0;
+    tertiary_consumption = 0;
+
+    main_ml_reset = 0;
+    secondary_ml_reset = 0;
+    tertiary_ml_reset = 0;
 }
 
 void Muino3PhaseI2CSensor::update_values_() {
     static uint32_t last_time = 0;
 
+    float ml_part = state.phase / 6.0;
+
     if (total_sensor_ != nullptr)
         total_sensor_->publish_state((uint32_t)state.liters);
 
     if (ml_sensor_ != nullptr)
-        ml_sensor_->publish_state((uint32_t)(1000 * (state.liters + state.phase / 6.0)));
+        ml_sensor_->publish_state((uint32_t)(1000 * (state.liters + ml_part)));
+
+    if (main_consumption_sensor_ != nullptr)
+        main_consumption_sensor_->publish_state(
+            (float)(main_consumption + (ml_part - main_ml_reset))
+        );
+
+    if (secondary_consumption_sensor_ != nullptr)
+        secondary_consumption_sensor_->publish_state(
+            (float)(secondary_consumption + (ml_part - secondary_ml_reset))
+        );
+
+    if (tertiary_consumption_sensor_ != nullptr)
+        tertiary_consumption_sensor_->publish_state(
+            (float)(tertiary_consumption) + (ml_part - tertiary_ml_reset)
+        );
 
     if (time_since_last_flow_sensor_ != nullptr)
         time_since_last_flow_sensor_->publish_state((millis() - time_since_last_flow_) / 1000);
@@ -273,6 +309,24 @@ void Muino3PhaseI2CSensor::reset_total() {
     update_values_();
     ESP_LOGI(TAG, "Total consumption reset to 0");
 }
+
+void Muino3PhaseI2CSensor::reset_main_consumption() {
+    main_consumption = 0;
+    main_ml_reset = state.phase / 6.0;
+    update_values_();
+};
+
+void Muino3PhaseI2CSensor::reset_secondary_consumption() {
+    secondary_consumption = 0;
+    secondary_ml_reset = state.phase / 6.0;
+    update_values_();
+};
+
+void Muino3PhaseI2CSensor::reset_tertiary_consumption() {
+    tertiary_consumption = 0;
+    tertiary_ml_reset = state.phase / 6.0;
+    update_values_();
+};
 
 void Muino3PhaseI2CSensor::set_led(bool state) {
     this->set_pin_io_(6, state);
