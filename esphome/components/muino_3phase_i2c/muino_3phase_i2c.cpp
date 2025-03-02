@@ -104,6 +104,10 @@ void Muino3PhaseI2CSensor::update_consumption(int8_t value) {
     secondary_consumption += value;
     tertiary_consumption += value;
     last_consumption_ += value;
+
+    if (value > 0) {
+        index_ += 1;
+    }
 }
 
 float Muino3PhaseI2CSensor::mini_average(float x, float y, float alpha_cor) {
@@ -231,7 +235,54 @@ uint16_t Muino3PhaseI2CSensor::read_sensor_(uint8_t sensor_id) {
     return val;
 }
 
-// Main sensor implementation
+uint32_t index_saved = -1;
+uint32_t main_saved = -1;
+uint32_t secondary_saved = -1;
+uint32_t tertiary_saved = -1;
+void Muino3PhaseI2CSensor::save_consumptions() {
+    ESP_LOGI(TAG, "Saving consumptions");
+
+    if (index_!= index_saved) {
+        index_pref_.save(&index_);
+        index_saved = index_;
+    }
+
+    if (main_consumption != main_saved) {
+        main_pref_.save(&main_consumption);
+        main_saved = main_consumption;
+    }
+
+    if (secondary_consumption != secondary_saved) {
+        secondary_pref_.save(&secondary_consumption);
+        secondary_saved = secondary_consumption;
+    }
+
+    if (tertiary_consumption != tertiary_saved) {
+        tertiary_pref_.save(&tertiary_consumption);
+        tertiary_saved = tertiary_consumption;
+    }
+}
+
+void Muino3PhaseI2CSensor::restore_consumptions() {
+    if (!index_pref_.load(&index_)) {
+        index_ = 0;
+    }
+
+    if (!main_pref_.load(&main_consumption)) {
+        main_consumption = 0;
+    }
+
+    if (!secondary_pref_.load(&secondary_consumption)) {
+        secondary_consumption = 0;
+    }
+
+    if (!tertiary_pref_.load(&tertiary_consumption)) {
+        tertiary_consumption = 0;
+    }
+
+    update_values_();
+}
+
 void Muino3PhaseI2CSensor::setup() {
     ESP_LOGCONFIG(TAG, "Setting up Muino 3-Phase Sensor...");
 
@@ -265,6 +316,13 @@ void Muino3PhaseI2CSensor::setup() {
     main_ml_reset = 0;
     secondary_ml_reset = 0;
     tertiary_ml_reset = 0;
+
+    index_pref_ = global_preferences->make_preference<uint32_t>(1004);
+    main_pref_ = global_preferences->make_preference<uint32_t>(1001);
+    secondary_pref_ = global_preferences->make_preference<uint32_t>(1002);
+    tertiary_pref_ = global_preferences->make_preference<uint32_t>(1003);
+
+    restore_consumptions();
 }
 
 void Muino3PhaseI2CSensor::update_values_() {
@@ -277,6 +335,9 @@ void Muino3PhaseI2CSensor::update_values_() {
 
     if (ml_sensor_ != nullptr)
         ml_sensor_->publish_state((uint32_t)(1000 * (state.liters + ml_part)));
+
+    if (index_sensor_ != nullptr)
+        index_sensor_->publish_state((uint32_t)index_);
 
     if (main_consumption_sensor_ != nullptr)
         main_consumption_sensor_->publish_state(

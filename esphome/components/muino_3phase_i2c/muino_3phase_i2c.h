@@ -25,6 +25,7 @@ public:
 
     void set_total_sensor(sensor::Sensor *sensor) { total_sensor_ = sensor; }
     void set_ml_sensor(sensor::Sensor *sensor) { ml_sensor_ = sensor; }
+    void set_index_sensor(sensor::Sensor *sensor) { index_sensor_ = sensor; }
     void set_main_consumption_sensor(sensor::Sensor *sensor) { main_consumption_sensor_ = sensor; }
     void set_secondary_consumption_sensor(sensor::Sensor *sensor) { secondary_consumption_sensor_ = sensor; }
     void set_tertiary_consumption_sensor(sensor::Sensor *sensor) { tertiary_consumption_sensor_ = sensor; }
@@ -40,11 +41,17 @@ public:
     void reset_secondary_consumption();
     void reset_tertiary_consumption();
 
+    void save_consumptions();
+    void restore_consumptions();
+
     bool phase_coarse(int sen_a, int sen_b, int sen_c);
     float mini_average(float x, float y, float alpha_cor);
     float max_average(float x, float y, float alpha_cor);
 
     void set_led(bool state);
+
+    void set_index(int value) { index_ = value; }
+    uint32_t get_index(int value) const { return index_; }
 
     void set_debug_mode(bool value) {
         debug_mode_ = value;
@@ -63,6 +70,14 @@ public:
     float tertiary_ml_reset;
 
 protected:
+    ESPPreferenceObject index_pref_;
+    ESPPreferenceObject main_pref_;
+    ESPPreferenceObject secondary_pref_;
+    ESPPreferenceObject tertiary_pref_;
+
+    // We don't want a direct access to this variable
+    uint32_t index_;
+
     bool init_ok = false;
 
     uint8_t status = 0;
@@ -88,6 +103,7 @@ protected:
 
     sensor::Sensor *total_sensor_{nullptr};
     sensor::Sensor *ml_sensor_{nullptr};
+    sensor::Sensor *index_sensor_{nullptr};
     sensor::Sensor *main_consumption_sensor_{nullptr};
     sensor::Sensor *secondary_consumption_sensor_{nullptr};
     sensor::Sensor *tertiary_consumption_sensor_{nullptr};

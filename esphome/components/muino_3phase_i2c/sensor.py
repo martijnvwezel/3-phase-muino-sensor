@@ -15,6 +15,7 @@ from . import muino_3phase_i2c_ns, Muino3PhaseI2CSensor
 
 CONF_TOTAL = "total"
 CONF_ML = "ml"
+CONF_INDEX = "index"
 CONF_MAIN_CONSUMPTION = "main_consumption"
 CONF_SECONDARY_CONSUMPTION = "secondary_consumption"
 CONF_TERTIARY_CONSUMPTION = "tertiary_consumption"
@@ -40,6 +41,12 @@ CONFIG_SCHEMA = cv.Schema({
         state_class=STATE_CLASS_TOTAL_INCREASING,
     ).extend({
         cv.Optional(CONF_UNIT_OF_MEASUREMENT, default='mL'): cv.string,
+    }),
+    cv.Optional(CONF_INDEX): sensor.sensor_schema(
+        device_class=DEVICE_CLASS_WATER,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+    ).extend({
+        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
     }),
     cv.Optional(CONF_MAIN_CONSUMPTION): sensor.sensor_schema(
         device_class=DEVICE_CLASS_WATER,
@@ -92,6 +99,10 @@ async def to_code(config):
     if CONF_ML in config:
         sens = await sensor.new_sensor(config[CONF_ML])
         cg.add(var.set_ml_sensor(sens))
+
+    if CONF_INDEX in config:
+        sens = await sensor.new_sensor(config[CONF_INDEX])
+        cg.add(var.set_index_sensor(sens))
 
     if CONF_MAIN_CONSUMPTION in config:
         sens = await sensor.new_sensor(config[CONF_MAIN_CONSUMPTION])
