@@ -20,8 +20,8 @@ public:
     void update() override;
     void dump_config() override;
     float get_setup_priority() const override { return setup_priority::DATA; }
-
-    void calibrate();
+    void before_flash() { save_consumptions(); }
+    void on_shutdown() { save_consumptions(); }
 
     void set_total_sensor(sensor::Sensor *sensor) { total_sensor_ = sensor; }
     void set_ml_sensor(sensor::Sensor *sensor) { ml_sensor_ = sensor; }
