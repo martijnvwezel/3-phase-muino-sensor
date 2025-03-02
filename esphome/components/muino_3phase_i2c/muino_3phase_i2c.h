@@ -20,8 +20,8 @@ public:
     void update() override;
     void dump_config() override;
     float get_setup_priority() const override { return setup_priority::DATA; }
-    void before_flash() { save_consumptions(); }
-    void on_shutdown() { save_consumptions(); }
+    void before_flash() { save_consumptions(true); }
+    void on_shutdown() { save_consumptions(true); }
 
     void set_total_sensor(sensor::Sensor *sensor) { total_sensor_ = sensor; }
     void set_ml_sensor(sensor::Sensor *sensor) { ml_sensor_ = sensor; }
@@ -35,14 +35,15 @@ public:
     void set_sensor_phase(sensor::Sensor *sensor) { phase_sensor_ = sensor; }
     void set_time_since_last_flow(sensor::Sensor *sensor) { time_since_last_flow_sensor_ = sensor; }
     void set_last_consumption(sensor::Sensor *sensor) { last_consumption_sensor_ = sensor; }
+    void set_measurements_consistency_sensor(binary_sensor::BinarySensor *sensor) { measurements_consistency_sensor_ = sensor; }
 
     void reset_total();
     void reset_main_consumption();
     void reset_secondary_consumption();
     void reset_tertiary_consumption();
 
-    void save_consumptions();
-    void restore_consumptions();
+    void save_consumptions(bool shutdown_occured = false);
+    void restore_consumptions(bool startup_occured = false);
 
     bool phase_coarse(int sen_a, int sen_b, int sen_c);
     float mini_average(float x, float y, float alpha_cor);
@@ -50,7 +51,7 @@ public:
 
     void set_led(bool state);
 
-    void set_index(int value) { index_ = value; }
+    void set_index(int value);
     uint32_t get_index(int value) const { return index_; }
 
     void set_debug_mode(bool value) {
@@ -77,6 +78,14 @@ protected:
 
     // We don't want a direct access to this variable
     uint32_t index_;
+
+    // After consumption has been saved during a shutdown event (`before_flash`, `on_shutdown`),
+    // a specific value (shutdown_value_: 0xCC) is written.
+    // At the next startup, if this value is not the one expected, it is assumed that
+    // the consumption saving did not take place, and therefore that consumption is
+    // no longer completely in phase.
+    uint8_t shutdown_value_ = 0xCC;
+    ESPPreferenceObject shutdown_consistency_pref_;
 
     bool init_ok = false;
 
@@ -113,6 +122,7 @@ protected:
     sensor::Sensor *phase_sensor_{nullptr};
     sensor::Sensor *time_since_last_flow_sensor_{nullptr};
     sensor::Sensor *last_consumption_sensor_{nullptr};
+    binary_sensor::BinarySensor *measurements_consistency_sensor_{nullptr};
 
     text_sensor::TextSensor *debug_text_sensor_{nullptr};
 

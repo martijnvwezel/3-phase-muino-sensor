@@ -1,10 +1,12 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, sensor, text_sensor
+from esphome.components import binary_sensor, i2c, sensor, text_sensor
 from esphome.const import (
     CONF_ID,
     CONF_ACCURACY_DECIMALS,
     DEVICE_CLASS_WATER,
+    DEVICE_CLASS_PROBLEM,
+    ENTITY_CATEGORY_DIAGNOSTIC,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
     CONF_UNIT_OF_MEASUREMENT,
@@ -25,6 +27,7 @@ CONF_SENSOR_C = "sensor_c"
 CONF_PHASE = "phase"
 CONF_TIME_SINCE_LAST_FLOW = "time_since_last_flow"
 CONF_LAST_CONSUMPTION = "last_consumption"
+CONF_MEASUREMENTS_CONSISTENCY= "measurements_consistency"
 
 UNIT_LITER_PER_MINUTE = "L/min"
 
@@ -85,6 +88,11 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Optional(CONF_SENSOR_B): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_SENSOR_C): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_PHASE): sensor.sensor_schema(),
+    cv.Optional(CONF_MEASUREMENTS_CONSISTENCY): binary_sensor.binary_sensor_schema(
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        device_class=DEVICE_CLASS_PROBLEM,
+        #icon=ICON_ALERT,
+    ),
 }).extend(cv.COMPONENT_SCHEMA).extend(i2c.i2c_device_schema(0x43))
 
 async def to_code(config):
@@ -139,3 +147,7 @@ async def to_code(config):
     if CONF_PHASE in config:
         sens = await sensor.new_sensor(config[CONF_PHASE])
         cg.add(var.set_sensor_phase(sens))
+
+    if CONF_MEASUREMENTS_CONSISTENCY in config:
+        bin_sens = await binary_sensor.new_binary_sensor(config[CONF_MEASUREMENTS_CONSISTENCY])
+        cg.add(var.set_measurements_consistency_sensor(bin_sens))

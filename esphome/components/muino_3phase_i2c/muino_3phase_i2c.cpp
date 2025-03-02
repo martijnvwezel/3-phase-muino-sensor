@@ -239,7 +239,7 @@ uint32_t index_saved = -1;
 uint32_t main_saved = -1;
 uint32_t secondary_saved = -1;
 uint32_t tertiary_saved = -1;
-void Muino3PhaseI2CSensor::save_consumptions() {
+void Muino3PhaseI2CSensor::save_consumptions(bool shutdown_occured) {
     ESP_LOGI(TAG, "Saving consumptions");
 
     if (index_!= index_saved) {
@@ -261,9 +261,15 @@ void Muino3PhaseI2CSensor::save_consumptions() {
         tertiary_pref_.save(&tertiary_consumption);
         tertiary_saved = tertiary_consumption;
     }
+
+    // Shutdown occured, all values is now saved: We create a marker
+    // to be able to check this on the next boot.
+    if (shutdown_occured && measurements_consistency_sensor_) {
+        shutdown_consistency_pref_.save(&shutdown_value_);
+    }
 }
 
-void Muino3PhaseI2CSensor::restore_consumptions() {
+void Muino3PhaseI2CSensor::restore_consumptions(bool startup_occured) {
     if (!index_pref_.load(&index_)) {
         index_ = 0;
     }
@@ -278,6 +284,17 @@ void Muino3PhaseI2CSensor::restore_consumptions() {
 
     if (!tertiary_pref_.load(&tertiary_consumption)) {
         tertiary_consumption = 0;
+    }
+
+    // We ignore this if the measurements consistency sensor
+    // is not activated in the configuration
+    if (startup_occured && measurements_consistency_sensor_) {
+        uint8_t value = 0;
+        shutdown_consistency_pref_.load(&value);
+        measurements_consistency_sensor_->publish_state((value != shutdown_value_));
+
+        value = 0;
+        shutdown_consistency_pref_.save(&value);
     }
 
     update_values_();
@@ -322,7 +339,9 @@ void Muino3PhaseI2CSensor::setup() {
     secondary_pref_ = global_preferences->make_preference<uint32_t>(1002);
     tertiary_pref_ = global_preferences->make_preference<uint32_t>(1003);
 
-    restore_consumptions();
+    restore_consumptions(true);
+
+    shutdown_consistency_pref_ = global_preferences->make_preference<uint8_t>(1020);
 }
 
 void Muino3PhaseI2CSensor::update_values_() {
@@ -359,6 +378,14 @@ void Muino3PhaseI2CSensor::update_values_() {
 
     if (last_consumption_sensor_ != nullptr)
         last_consumption_sensor_->publish_state(last_consumption_);
+}
+
+void Muino3PhaseI2CSensor::set_index(int value) {
+    index_ = value;
+
+    // Currently, to accept the consistency of the sensor, the only way is to write the index.
+    if (measurements_consistency_sensor_)
+        measurements_consistency_sensor_->publish_state(true);
 }
 
 void Muino3PhaseI2CSensor::reset_total() {
