@@ -93,7 +93,8 @@ bool Muino3PhaseI2CSensor::phase_coarse(int a, int b, int c) {
         state.liters--;
         state.phase = 5;
 
-        update_consumption(-1);
+        // Too many problem with that: It is useful?
+        // update_consumption(-1);
     }
 
     return true;
