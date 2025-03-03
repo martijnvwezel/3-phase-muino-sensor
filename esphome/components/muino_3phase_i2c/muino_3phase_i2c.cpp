@@ -236,11 +236,12 @@ uint16_t Muino3PhaseI2CSensor::read_sensor_(uint8_t sensor_id) {
     return val;
 }
 
-uint32_t index_saved = -1;
-uint32_t main_saved = -1;
-uint32_t secondary_saved = -1;
-uint32_t tertiary_saved = -1;
 void Muino3PhaseI2CSensor::save_consumptions(bool shutdown_occured) {
+    static uint32_t index_saved = -1;
+    static uint32_t main_saved = -1;
+    static uint32_t secondary_saved = -1;
+    static uint32_t tertiary_saved = -1;
+
     ESP_LOGI(TAG, "Saving consumptions");
 
     if (index_!= index_saved) {
