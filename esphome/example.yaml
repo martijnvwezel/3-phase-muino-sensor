@@ -50,10 +50,20 @@ sensor:
       name: "Liters"
     ml:
       name: "mL Usage"
+    index:
+      name: "Index"
+    main_consumption:
+      name: "Main"
+    secondary_consumption:
+      name: "Secondary"
+    tertiary_consumption:
+      name: "Tertiary"
     time_since_last_flow:
       name: "Last flow"
     last_consumption:
       name: "Last consumption"
+    measurements_consistency:
+      name: "Measurements consistency"
     sensor_a:
       name: "A"
     sensor_b:
