@@ -13,7 +13,7 @@ from esphome.const import (
     UNIT_LITRE,
 )
 
-from . import muino_3phase_i2c_ns, Muino3PhaseI2CSensor
+from . import Muino3PhaseI2CSensor
 
 CONF_TOTAL = "total"
 CONF_ML = "ml"
