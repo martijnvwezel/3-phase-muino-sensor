@@ -381,7 +381,7 @@ void Muino3PhaseI2CSensor::set_index(int value) {
 
     // Currently, to accept the consistency of the sensor, the only way is to write the index.
     if (measurements_consistency_sensor_)
-        measurements_consistency_sensor_->publish_state(true);
+        measurements_consistency_sensor_->publish_state(false);
 }
 
 void Muino3PhaseI2CSensor::reset_total() {
