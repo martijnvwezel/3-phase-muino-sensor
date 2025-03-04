@@ -46,10 +46,6 @@ logger:
 sensor:
   - platform: muino_3phase_i2c
     id: water_meter_sensor
-    total:
-      name: "Liters"
-    ml:
-      name: "mL Usage"
     index:
       name: "Index"
     main_consumption:

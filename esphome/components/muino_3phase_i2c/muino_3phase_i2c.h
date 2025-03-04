@@ -23,8 +23,6 @@ public:
     void before_flash() { save_consumptions(true); }
     void on_shutdown() { save_consumptions(true); }
 
-    void set_total_sensor(sensor::Sensor *sensor) { total_sensor_ = sensor; }
-    void set_ml_sensor(sensor::Sensor *sensor) { ml_sensor_ = sensor; }
     void set_index_sensor(sensor::Sensor *sensor) { index_sensor_ = sensor; }
     void set_main_consumption_sensor(sensor::Sensor *sensor) { main_consumption_sensor_ = sensor; }
     void set_secondary_consumption_sensor(sensor::Sensor *sensor) { secondary_consumption_sensor_ = sensor; }
@@ -36,6 +34,7 @@ public:
     void set_time_since_last_flow(sensor::Sensor *sensor) { time_since_last_flow_sensor_ = sensor; }
     void set_last_consumption(sensor::Sensor *sensor) { last_consumption_sensor_ = sensor; }
     void set_measurements_consistency_sensor(binary_sensor::BinarySensor *sensor) { measurements_consistency_sensor_ = sensor; }
+    void set_flow_rate_sensor(sensor::Sensor *sensor) { flow_rate_sensor_ = sensor; }
 
     void reset_total();
     void reset_main_consumption();
@@ -110,8 +109,6 @@ protected:
     uint32_t time_since_last_flow_ = 0;
     uint32_t last_consumption_ = 0;
 
-    sensor::Sensor *total_sensor_{nullptr};
-    sensor::Sensor *ml_sensor_{nullptr};
     sensor::Sensor *index_sensor_{nullptr};
     sensor::Sensor *main_consumption_sensor_{nullptr};
     sensor::Sensor *secondary_consumption_sensor_{nullptr};

@@ -351,12 +351,6 @@ void Muino3PhaseI2CSensor::update_values_() {
 
     float ml_part = state.phase / 6.0;
 
-    if (total_sensor_ != nullptr)
-        total_sensor_->publish_state((uint32_t)state.liters);
-
-    if (ml_sensor_ != nullptr)
-        ml_sensor_->publish_state((uint32_t)(1000 * (state.liters + ml_part)));
-
     if (index_sensor_ != nullptr)
         index_sensor_->publish_state((uint32_t)index_);
 

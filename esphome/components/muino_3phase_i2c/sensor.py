@@ -15,8 +15,6 @@ from esphome.const import (
 
 from . import Muino3PhaseI2CSensor
 
-CONF_TOTAL = "total"
-CONF_ML = "ml"
 CONF_INDEX = "index"
 CONF_MAIN_CONSUMPTION = "main_consumption"
 CONF_SECONDARY_CONSUMPTION = "secondary_consumption"
@@ -28,23 +26,12 @@ CONF_PHASE = "phase"
 CONF_TIME_SINCE_LAST_FLOW = "time_since_last_flow"
 CONF_LAST_CONSUMPTION = "last_consumption"
 CONF_MEASUREMENTS_CONSISTENCY= "measurements_consistency"
+CONF_FLOW_RATE = "flow_rate"
 
 UNIT_LITER_PER_MINUTE = "L/min"
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(Muino3PhaseI2CSensor),
-    cv.Optional(CONF_TOTAL): sensor.sensor_schema(
-        device_class=DEVICE_CLASS_WATER,
-        state_class=STATE_CLASS_TOTAL_INCREASING,
-    ).extend({
-        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
-    }),
-    cv.Optional(CONF_ML): sensor.sensor_schema(
-        device_class=DEVICE_CLASS_WATER,
-        state_class=STATE_CLASS_TOTAL_INCREASING,
-    ).extend({
-        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default='mL'): cv.string,
-    }),
     cv.Optional(CONF_INDEX): sensor.sensor_schema(
         device_class=DEVICE_CLASS_WATER,
         state_class=STATE_CLASS_TOTAL_INCREASING,
@@ -99,14 +86,6 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
-
-    if CONF_TOTAL in config:
-        sens = await sensor.new_sensor(config[CONF_TOTAL])
-        cg.add(var.set_total_sensor(sens))
-
-    if CONF_ML in config:
-        sens = await sensor.new_sensor(config[CONF_ML])
-        cg.add(var.set_ml_sensor(sens))
 
     if CONF_INDEX in config:
         sens = await sensor.new_sensor(config[CONF_INDEX])
