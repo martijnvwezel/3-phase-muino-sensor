@@ -328,6 +328,8 @@ void Muino3PhaseI2CSensor::setup() {
     state.b_max = 0;
     state.c_max = 0;
 
+    time_since_last_flow_ = 0;
+
     main_consumption = 0;
     secondary_consumption = 0;
     tertiary_consumption = 0;
@@ -369,7 +371,7 @@ void Muino3PhaseI2CSensor::update_values_() {
             (float)(tertiary_consumption) + (ml_part - tertiary_ml_reset)
         );
 
-    if (time_since_last_flow_sensor_ != nullptr)
+    if (time_since_last_flow_sensor_ != nullptr && time_since_last_flow_ != 0)
         time_since_last_flow_sensor_->publish_state((millis() - time_since_last_flow_) / 1000);
 
     if (last_consumption_sensor_ != nullptr)
@@ -385,11 +387,12 @@ void Muino3PhaseI2CSensor::set_index(int value) {
 }
 
 void Muino3PhaseI2CSensor::reset_total() {
+    // Todo...
     init_ok = false;
     state.liters = 0;
     state.phase = 0;
     last_consumption_ = 0;
-    time_since_last_flow_ = millis();
+    time_since_last_flow_ = 0;
     update_values_();
     ESP_LOGI(TAG, "Total consumption reset to 0");
 }
