@@ -60,6 +60,8 @@ sensor:
       name: "Last consumption"
     measurements_consistency:
       name: "Measurements consistency"
+    flow_rate:
+      name: "Flow rate"
     sensor_a:
       name: "A"
     sensor_b:

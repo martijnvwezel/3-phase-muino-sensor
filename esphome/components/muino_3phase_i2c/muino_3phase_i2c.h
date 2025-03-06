@@ -57,6 +57,8 @@ public:
         debug_mode_ = value;
     }
 
+    float flow_rate;
+
     state_t state;
 
     uint32_t main_consumption;
@@ -109,6 +111,10 @@ protected:
     uint32_t time_since_last_flow_ = 0;
     uint32_t last_consumption_ = 0;
 
+    float flow_rate_last_time_ = 0;
+    float flow_rate_values_[5] = {0};
+    uint8_t flow_rate_index_ = 0;
+
     sensor::Sensor *index_sensor_{nullptr};
     sensor::Sensor *main_consumption_sensor_{nullptr};
     sensor::Sensor *secondary_consumption_sensor_{nullptr};
@@ -120,6 +126,7 @@ protected:
     sensor::Sensor *time_since_last_flow_sensor_{nullptr};
     sensor::Sensor *last_consumption_sensor_{nullptr};
     binary_sensor::BinarySensor *measurements_consistency_sensor_{nullptr};
+    sensor::Sensor *flow_rate_sensor_{nullptr};
 
     text_sensor::TextSensor *debug_text_sensor_{nullptr};
 
@@ -135,6 +142,9 @@ protected:
     void save_total_();
     void update_values_();
     void update_consumption(int8_t value);
+    void flow_rate_push_value_(float value);
+    void flow_rate_increment_();
+    void flow_rate_reset_();
 };
 
 } // namespace muino_3phase_i2c

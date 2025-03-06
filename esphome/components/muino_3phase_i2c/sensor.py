@@ -78,8 +78,14 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Optional(CONF_MEASUREMENTS_CONSISTENCY): binary_sensor.binary_sensor_schema(
         entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
         device_class=DEVICE_CLASS_PROBLEM,
-        #icon=ICON_ALERT,
     ),
+    cv.Optional(CONF_FLOW_RATE): sensor.sensor_schema(
+        device_class=DEVICE_CLASS_WATER,
+        state_class=STATE_CLASS_MEASUREMENT,
+        accuracy_decimals=2,
+    ).extend({
+        cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITER_PER_MINUTE): cv.string,
+    }),
 }).extend(cv.COMPONENT_SCHEMA).extend(i2c.i2c_device_schema(0x43))
 
 async def to_code(config):
@@ -130,3 +136,7 @@ async def to_code(config):
     if CONF_MEASUREMENTS_CONSISTENCY in config:
         bin_sens = await binary_sensor.new_binary_sensor(config[CONF_MEASUREMENTS_CONSISTENCY])
         cg.add(var.set_measurements_consistency_sensor(bin_sens))
+
+    if CONF_FLOW_RATE in config:
+        sens = await sensor.new_sensor(config[CONF_FLOW_RATE])
+        cg.add(var.set_flow_rate_sensor(sens))

@@ -77,6 +77,11 @@ bool Muino3PhaseI2CSensor::phase_coarse(int a, int b, int c) {
     short i = state.phase > 2 ? state.phase - 3 : state.phase;
     if (pn[i + 2] < pn[i + 1] && pn[i + 2] < pn[i]){
         time_since_last_flow_ = millis();
+
+        if (flow_rate_sensor_ != nullptr) {
+            flow_rate_increment_();
+        }
+
         if (pn[i + 1] > pn[i])
             state.phase++;
         else
@@ -236,6 +241,43 @@ uint16_t Muino3PhaseI2CSensor::read_sensor_(uint8_t sensor_id) {
     return val;
 }
 
+// Accumulate value to calculate the flow rate
+void Muino3PhaseI2CSensor::flow_rate_push_value_(float value) {
+    flow_rate_values_[flow_rate_index_] = value;
+    flow_rate_index_ = (flow_rate_index_ + 1) % 5;
+
+    float sum = 0;
+    for (int i = 0; i < 5; i++) {
+        sum += flow_rate_values_[i];
+    }
+    flow_rate = sum / 5;
+}
+
+// Phase has been incremented, push a new value
+void Muino3PhaseI2CSensor::flow_rate_increment_() {
+    constexpr float CONVERSION_FACTOR = 10.0; // 60 sec / 6 phases = 10
+
+    float current_time = millis() / 1000.0;
+    float delta_t = current_time - flow_rate_last_time_;
+
+    flow_rate_push_value_(CONVERSION_FACTOR / delta_t);
+
+    flow_rate_last_time_ = current_time;
+}
+
+// If no new flow rate for RESET_TIME, push a 0 value
+void Muino3PhaseI2CSensor::flow_rate_reset_() {
+    // 10 seconds: Maybe this must be adjusted in function of the min flow rate
+    constexpr float RESET_TIME = 10.0;
+
+    float current_time = millis() / 1000.0;
+    float delta_t = current_time - flow_rate_last_time_;
+
+    if (flow_rate_last_time_ > 0 && delta_t > RESET_TIME) {
+        flow_rate_push_value_(0);
+    }
+}
+
 void Muino3PhaseI2CSensor::save_consumptions(bool shutdown_occured) {
     static uint32_t index_saved = -1;
     static uint32_t main_saved = -1;
@@ -343,6 +385,8 @@ void Muino3PhaseI2CSensor::setup() {
     secondary_pref_ = global_preferences->make_preference<uint32_t>(1002);
     tertiary_pref_ = global_preferences->make_preference<uint32_t>(1003);
 
+    flow_rate = 0;
+
     restore_consumptions(true);
 
     shutdown_consistency_pref_ = global_preferences->make_preference<uint8_t>(1020);
@@ -376,6 +420,10 @@ void Muino3PhaseI2CSensor::update_values_() {
 
     if (last_consumption_sensor_ != nullptr)
         last_consumption_sensor_->publish_state(last_consumption_);
+
+    if (flow_rate_sensor_ != nullptr)
+        flow_rate_sensor_->publish_state((float)flow_rate);
+
 }
 
 void Muino3PhaseI2CSensor::set_index(int value) {
@@ -393,6 +441,7 @@ void Muino3PhaseI2CSensor::reset_total() {
     state.phase = 0;
     last_consumption_ = 0;
     time_since_last_flow_ = 0;
+    flow_rate = 0;
     update_values_();
     ESP_LOGI(TAG, "Total consumption reset to 0");
 }
@@ -519,6 +568,9 @@ void Muino3PhaseI2CSensor::update() {
     }
 
     ESP_LOGW(TAG, "Status: %i, Interval: %ums, Duration %ums, hindex: %i", status, interval, millis() - now, history_index_);
+
+    flow_rate_reset_();
+
     last_time = now;
 }
 
