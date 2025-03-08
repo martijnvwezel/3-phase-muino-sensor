@@ -478,35 +478,36 @@ void Muino3PhaseI2CSensor::set_led(bool state) {
 void Muino3PhaseI2CSensor::update() {
     static uint32_t last_time = 0;
     uint32_t now = millis();
-    uint32_t interval = now - last_time;
     char buffer[50];
 
     if (millis() - last_update_ >= 1000) {
         if (debug_mode_) {
-            if (a_sensor_ != nullptr)
+            if (a_sensor_ != nullptr) {
                 snprintf(
                     buffer, sizeof(buffer),
                     "[%d, %d] raw: %d, avg: %d",
                     sen_a_dark_, sen_a_light_, state.a, history_a_[history_index_]
                 );
-                a_sensor_->set_entity_category(esphome::EntityCategory::ENTITY_CATEGORY_DIAGNOSTIC);
                 a_sensor_->publish_state(buffer);
+            }
 
-            if (b_sensor_ != nullptr)
+            if (b_sensor_ != nullptr) {
                 snprintf(
                     buffer, sizeof(buffer),
                     "[%d, %d] raw: %d, avg: %d",
                     sen_b_dark_, sen_b_light_, state.b, history_b_[history_index_]
                 );
                 b_sensor_->publish_state(buffer);
+            }
 
-            if (c_sensor_ != nullptr)
+            if (c_sensor_ != nullptr) {
                 snprintf(
                     buffer, sizeof(buffer),
                     "[%d, %d] raw: %d, avg: %d",
                     sen_c_dark_, sen_c_light_, state.c, history_c_[history_index_]
                 );
                 c_sensor_->publish_state(buffer);
+            }
 
             if (phase_sensor_ != nullptr)
                 phase_sensor_->publish_state(state.phase);
@@ -559,25 +560,11 @@ void Muino3PhaseI2CSensor::update() {
         state.b = (history_b_[0] + history_b_[1] + history_b_[2]) / 3;
         state.c = (history_c_[0] + history_c_[1] + history_c_[2]) / 3;
 
-        /*
-        uint8_t val;
-        read_(VEML6030_I2C_ADDR_H, VEML6030_ALS_SD, (uint8_t*)&val, 2);
-        ESP_LOGI(TAG, "X %d", val);
-        */
-
-        ESP_LOGI(TAG, "Valeurs %d: %d, %d | Smoothed: %d", 0, sen_a_light_, sen_a_dark_, state.a);
-        ESP_LOGI(TAG, "Valeurs %d: %d, %d | Smoothed: %d", 1, sen_b_light_, sen_b_dark_, state.b);
-        ESP_LOGI(TAG, "Valeurs %d: %d, %d | Smoothed: %d", 2, sen_c_light_, sen_c_dark_, state.c);
-        // ESP_LOGD(TAG, "mL %d", this->calculate(&state));
-        ESP_LOGI(TAG, "--");
-
         phase_coarse(state.a, state.b, state.c);
 
         status = 1;
         break;
     }
-
-    ESP_LOGW(TAG, "Status: %i, Interval: %ums, Duration %ums, hindex: %i", status, interval, millis() - now, history_index_);
 
     flow_rate_reset_();
 
