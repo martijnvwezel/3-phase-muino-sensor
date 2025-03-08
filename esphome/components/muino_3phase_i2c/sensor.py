@@ -24,7 +24,8 @@ CONF_SENSOR_B = "sensor_b"
 CONF_SENSOR_C = "sensor_c"
 CONF_PHASE = "phase"
 CONF_TIME_SINCE_LAST_FLOW = "time_since_last_flow"
-CONF_LAST_CONSUMPTION = "last_consumption"
+CONF_PREVIOUS_CONSUMPTION = "previous_consumption"
+CONF_CURRENT_CONSUMPTION = "current_consumption"
 CONF_MEASUREMENTS_CONSISTENCY= "measurements_consistency"
 CONF_FLOW_RATE = "flow_rate"
 
@@ -67,9 +68,14 @@ CONFIG_SCHEMA = cv.Schema({
         accuracy_decimals=0,
         state_class=STATE_CLASS_MEASUREMENT,
     ),
-    cv.Optional(CONF_LAST_CONSUMPTION): sensor.sensor_schema(
+    cv.Optional(CONF_PREVIOUS_CONSUMPTION): sensor.sensor_schema(
         unit_of_measurement=UNIT_LITRE,
         state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    cv.Optional(CONF_CURRENT_CONSUMPTION): sensor.sensor_schema(
+        device_class=DEVICE_CLASS_WATER,
+        state_class=STATE_CLASS_TOTAL_INCREASING,
+        unit_of_measurement=UNIT_LITRE,
     ),
     cv.Optional(CONF_SENSOR_A): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_SENSOR_B): text_sensor.text_sensor_schema(),
@@ -113,9 +119,13 @@ async def to_code(config):
         sens = await sensor.new_sensor(config[CONF_TIME_SINCE_LAST_FLOW])
         cg.add(var.set_time_since_last_flow(sens))
 
-    if CONF_LAST_CONSUMPTION in config:
-        sens = await sensor.new_sensor(config[CONF_LAST_CONSUMPTION])
-        cg.add(var.set_last_consumption(sens))
+    if CONF_PREVIOUS_CONSUMPTION in config:
+        sens = await sensor.new_sensor(config[CONF_PREVIOUS_CONSUMPTION])
+        cg.add(var.set_previous_consumption(sens))
+
+    if CONF_CURRENT_CONSUMPTION in config:
+        sens = await sensor.new_sensor(config[CONF_CURRENT_CONSUMPTION])
+        cg.add(var.set_current_consumption_sensor(sens))
 
     if CONF_SENSOR_A in config:
         sens = await text_sensor.new_text_sensor(config[CONF_SENSOR_A])

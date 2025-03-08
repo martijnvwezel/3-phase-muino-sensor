@@ -109,7 +109,8 @@ void Muino3PhaseI2CSensor::update_consumption(int8_t value) {
     main_consumption += value;
     secondary_consumption += value;
     tertiary_consumption += value;
-    last_consumption_ += value;
+
+    current_consumption_ += value;
 
     if (value > 0) {
         index_ += 1;
@@ -370,6 +371,8 @@ void Muino3PhaseI2CSensor::setup() {
     state.b_max = 0;
     state.c_max = 0;
 
+    previous_consumption_ = 0;
+    current_consumption_ = 0;
     time_since_last_flow_ = 0;
 
     main_consumption = 0;
@@ -418,8 +421,11 @@ void Muino3PhaseI2CSensor::update_values_() {
     if (time_since_last_flow_sensor_ != nullptr && time_since_last_flow_ != 0)
         time_since_last_flow_sensor_->publish_state((millis() - time_since_last_flow_) / 1000);
 
-    if (last_consumption_sensor_ != nullptr)
-        last_consumption_sensor_->publish_state(last_consumption_);
+    if (previous_consumption_sensor_ != nullptr)
+        previous_consumption_sensor_->publish_state(previous_consumption_);
+
+    if (current_consumption_sensor_ != nullptr)
+        current_consumption_sensor_->publish_state(current_consumption_);
 
     if (flow_rate_sensor_ != nullptr)
         flow_rate_sensor_->publish_state((float)flow_rate);
@@ -439,7 +445,8 @@ void Muino3PhaseI2CSensor::reset_total() {
     init_ok = false;
     state.liters = 0;
     state.phase = 0;
-    last_consumption_ = 0;
+    previous_consumption_ = 0;
+    current_consumption_ = 0;
     time_since_last_flow_ = 0;
     flow_rate = 0;
     update_values_();
@@ -509,9 +516,12 @@ void Muino3PhaseI2CSensor::update() {
         last_update_ = millis();
     }
 
-    // Consumption reset if last water flow > 1 minute
-    if ((millis() - time_since_last_flow_) / 1000 > 60) {
-        last_consumption_ = 0;
+    // If 1 minute has passed since the last flow,
+    // set previous_consumption to current_consumption and
+    // reset the current counter to 0
+    if (now - time_since_last_flow_ > 60000 && current_consumption_ > 0) {
+        previous_consumption_ = current_consumption_;
+        current_consumption_ = 0;
     }
 
     switch (status) {

@@ -32,7 +32,8 @@ public:
     void set_sensor_c(text_sensor::TextSensor *sensor) { c_sensor_ = sensor; }
     void set_sensor_phase(sensor::Sensor *sensor) { phase_sensor_ = sensor; }
     void set_time_since_last_flow(sensor::Sensor *sensor) { time_since_last_flow_sensor_ = sensor; }
-    void set_last_consumption(sensor::Sensor *sensor) { last_consumption_sensor_ = sensor; }
+    void set_previous_consumption(sensor::Sensor *sensor) { previous_consumption_sensor_ = sensor; }
+    void set_current_consumption_sensor(sensor::Sensor *sensor) { current_consumption_sensor_ = sensor; }
     void set_measurements_consistency_sensor(binary_sensor::BinarySensor *sensor) { measurements_consistency_sensor_ = sensor; }
     void set_flow_rate_sensor(sensor::Sensor *sensor) { flow_rate_sensor_ = sensor; }
 
@@ -109,7 +110,8 @@ protected:
     uint32_t last_update_ = 0;
 
     uint32_t time_since_last_flow_ = 0;
-    uint32_t last_consumption_ = 0;
+    uint32_t current_consumption_ = 0;
+    uint32_t previous_consumption_ = 0;
 
     float flow_rate_last_time_ = 0;
     float flow_rate_values_[5] = {0};
@@ -124,7 +126,8 @@ protected:
     text_sensor::TextSensor *c_sensor_{nullptr};
     sensor::Sensor *phase_sensor_{nullptr};
     sensor::Sensor *time_since_last_flow_sensor_{nullptr};
-    sensor::Sensor *last_consumption_sensor_{nullptr};
+    sensor::Sensor *previous_consumption_sensor_{nullptr};
+    sensor::Sensor *current_consumption_sensor_{nullptr};
     binary_sensor::BinarySensor *measurements_consistency_sensor_{nullptr};
     sensor::Sensor *flow_rate_sensor_{nullptr};
 

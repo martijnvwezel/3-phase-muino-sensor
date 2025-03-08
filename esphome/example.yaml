@@ -56,8 +56,10 @@ sensor:
       name: "Tertiary"
     time_since_last_flow:
       name: "Last flow"
-    last_consumption:
-      name: "Last consumption"
+    previous_consumption:
+      name: "Previous consumption"
+    current_consumption:
+      name: "${friendly_name} Current consumption"
     measurements_consistency:
       name: "Measurements consistency"
     flow_rate:
