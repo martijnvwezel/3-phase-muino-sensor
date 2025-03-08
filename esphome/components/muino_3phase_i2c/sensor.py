@@ -3,7 +3,6 @@ import esphome.config_validation as cv
 from esphome.components import binary_sensor, i2c, sensor, text_sensor
 from esphome.const import (
     CONF_ID,
-    CONF_ACCURACY_DECIMALS,
     DEVICE_CLASS_WATER,
     DEVICE_CLASS_PROBLEM,
     ENTITY_CATEGORY_DIAGNOSTIC,
@@ -45,7 +44,6 @@ CONFIG_SCHEMA = cv.Schema({
         accuracy_decimals=1,
     ).extend({
         cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
-        cv.Optional(CONF_ACCURACY_DECIMALS, default=1): cv.positive_int,
     }),
     cv.Optional(CONF_SECONDARY_CONSUMPTION): sensor.sensor_schema(
         device_class=DEVICE_CLASS_WATER,
@@ -53,7 +51,6 @@ CONFIG_SCHEMA = cv.Schema({
         accuracy_decimals=1,
     ).extend({
         cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
-        cv.Optional(CONF_ACCURACY_DECIMALS, default=1): cv.positive_int,
     }),
     cv.Optional(CONF_TERTIARY_CONSUMPTION): sensor.sensor_schema(
         device_class=DEVICE_CLASS_WATER,
@@ -61,7 +58,6 @@ CONFIG_SCHEMA = cv.Schema({
         accuracy_decimals=1,
     ).extend({
         cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITRE): cv.string,
-        cv.Optional(CONF_ACCURACY_DECIMALS, default=1): cv.positive_int,
     }),
     cv.Optional(CONF_TIME_SINCE_LAST_FLOW): sensor.sensor_schema(
         unit_of_measurement="s",
