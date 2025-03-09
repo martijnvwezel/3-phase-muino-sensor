@@ -21,7 +21,7 @@ bool Muino3PhaseI2CSensor::phase_coarse(int a, int b, int c) {
         return false;
     }
 
-    if (!init_ok) {
+    if (!init_ok_) {
         state.liters = 0;
         state.phase = 0;
         state.a_min = a;
@@ -30,7 +30,7 @@ bool Muino3PhaseI2CSensor::phase_coarse(int a, int b, int c) {
         state.a_max = 0;
         state.b_max = 0;
         state.c_max = 0;
-        init_ok = true;
+        init_ok_ = true;
         return 0;
     }
 
@@ -442,7 +442,7 @@ void Muino3PhaseI2CSensor::set_index(int value) {
 
 void Muino3PhaseI2CSensor::reset_total() {
     // Todo...
-    init_ok = false;
+    init_ok_ = false;
     state.liters = 0;
     state.phase = 0;
     previous_consumption_ = 0;

@@ -113,11 +113,11 @@ async def to_code(config):
 
     if CONF_TIME_SINCE_LAST_FLOW in config:
         sens = await sensor.new_sensor(config[CONF_TIME_SINCE_LAST_FLOW])
-        cg.add(var.set_time_since_last_flow(sens))
+        cg.add(var.set_time_since_last_flow_sensor(sens))
 
     if CONF_PREVIOUS_CONSUMPTION in config:
         sens = await sensor.new_sensor(config[CONF_PREVIOUS_CONSUMPTION])
-        cg.add(var.set_previous_consumption(sens))
+        cg.add(var.set_previous_consumption_sensor(sens))
 
     if CONF_CURRENT_CONSUMPTION in config:
         sens = await sensor.new_sensor(config[CONF_CURRENT_CONSUMPTION])
@@ -125,19 +125,19 @@ async def to_code(config):
 
     if CONF_SENSOR_A in config:
         sens = await text_sensor.new_text_sensor(config[CONF_SENSOR_A])
-        cg.add(var.set_sensor_a(sens))
+        cg.add(var.set_a_sensor(sens))
 
     if CONF_SENSOR_B in config:
         sens = await text_sensor.new_text_sensor(config[CONF_SENSOR_B])
-        cg.add(var.set_sensor_b(sens))
+        cg.add(var.set_b_sensor(sens))
 
     if CONF_SENSOR_C in config:
         sens = await text_sensor.new_text_sensor(config[CONF_SENSOR_C])
-        cg.add(var.set_sensor_c(sens))
+        cg.add(var.set_c_sensor(sens))
 
     if CONF_PHASE in config:
         sens = await sensor.new_sensor(config[CONF_PHASE])
-        cg.add(var.set_sensor_phase(sens))
+        cg.add(var.set_phase_phase(sens))
 
     if CONF_MEASUREMENTS_CONSISTENCY in config:
         bin_sens = await binary_sensor.new_binary_sensor(config[CONF_MEASUREMENTS_CONSISTENCY])

@@ -27,12 +27,12 @@ public:
     void set_main_consumption_sensor(sensor::Sensor *sensor) { main_consumption_sensor_ = sensor; }
     void set_secondary_consumption_sensor(sensor::Sensor *sensor) { secondary_consumption_sensor_ = sensor; }
     void set_tertiary_consumption_sensor(sensor::Sensor *sensor) { tertiary_consumption_sensor_ = sensor; }
-    void set_sensor_a(text_sensor::TextSensor *sensor) { a_sensor_ = sensor; }
-    void set_sensor_b(text_sensor::TextSensor *sensor) { b_sensor_ = sensor; }
-    void set_sensor_c(text_sensor::TextSensor *sensor) { c_sensor_ = sensor; }
-    void set_sensor_phase(sensor::Sensor *sensor) { phase_sensor_ = sensor; }
-    void set_time_since_last_flow(sensor::Sensor *sensor) { time_since_last_flow_sensor_ = sensor; }
-    void set_previous_consumption(sensor::Sensor *sensor) { previous_consumption_sensor_ = sensor; }
+    void set_a_sensor(text_sensor::TextSensor *sensor) { a_sensor_ = sensor; }
+    void set_b_sensor(text_sensor::TextSensor *sensor) { b_sensor_ = sensor; }
+    void set_c_sensor(text_sensor::TextSensor *sensor) { c_sensor_ = sensor; }
+    void set_phase_sensor(sensor::Sensor *sensor) { phase_sensor_ = sensor; }
+    void set_time_since_last_flow_sensor(sensor::Sensor *sensor) { time_since_last_flow_sensor_ = sensor; }
+    void set_previous_consumption_sensor(sensor::Sensor *sensor) { previous_consumption_sensor_ = sensor; }
     void set_current_consumption_sensor(sensor::Sensor *sensor) { current_consumption_sensor_ = sensor; }
     void set_measurements_consistency_sensor(binary_sensor::BinarySensor *sensor) { measurements_consistency_sensor_ = sensor; }
     void set_flow_rate_sensor(sensor::Sensor *sensor) { flow_rate_sensor_ = sensor; }
@@ -89,7 +89,7 @@ protected:
     uint8_t shutdown_value_ = 0xCC;
     ESPPreferenceObject shutdown_consistency_pref_;
 
-    bool init_ok = false;
+    bool init_ok_ = false;
 
     uint8_t status = 0;
 
