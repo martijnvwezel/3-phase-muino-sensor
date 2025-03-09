@@ -3,6 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import binary_sensor, i2c, sensor, text_sensor
 from esphome.const import (
     CONF_ID,
+    DEVICE_CLASS_DURATION,
     DEVICE_CLASS_WATER,
     DEVICE_CLASS_PROBLEM,
     ENTITY_CATEGORY_DIAGNOSTIC,
@@ -63,16 +64,20 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Optional(CONF_TIME_SINCE_LAST_FLOW): sensor.sensor_schema(
         unit_of_measurement="s",
         accuracy_decimals=0,
+        device_class=DEVICE_CLASS_DURATION,
         state_class=STATE_CLASS_MEASUREMENT,
     ),
     cv.Optional(CONF_PREVIOUS_CONSUMPTION): sensor.sensor_schema(
-        unit_of_measurement=UNIT_LITRE,
+        device_class=DEVICE_CLASS_WATER,
         state_class=STATE_CLASS_MEASUREMENT,
+        unit_of_measurement=UNIT_LITRE,
+        accuracy_decimals=1,
     ),
     cv.Optional(CONF_CURRENT_CONSUMPTION): sensor.sensor_schema(
         device_class=DEVICE_CLASS_WATER,
-        state_class=STATE_CLASS_TOTAL_INCREASING,
+        state_class=STATE_CLASS_MEASUREMENT,
         unit_of_measurement=UNIT_LITRE,
+        accuracy_decimals=1,
     ),
     cv.Optional(CONF_SENSOR_A): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_SENSOR_B): text_sensor.text_sensor_schema(),
