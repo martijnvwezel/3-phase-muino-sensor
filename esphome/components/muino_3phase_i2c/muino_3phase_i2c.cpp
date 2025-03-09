@@ -266,15 +266,12 @@ void Muino3PhaseI2CSensor::flow_rate_increment_() {
     flow_rate_last_time_ = current_time;
 }
 
-// If no new flow rate for RESET_TIME, push a 0 value
+// If no new flow rate for flow_rate_reset_time_, push a 0 value
 void Muino3PhaseI2CSensor::flow_rate_reset_() {
-    // 10 seconds: Maybe this must be adjusted in function of the min flow rate
-    constexpr float RESET_TIME = 10.0;
-
     float current_time = millis() / 1000.0;
     float delta_t = current_time - flow_rate_last_time_;
 
-    if (flow_rate_last_time_ > 0 && delta_t > RESET_TIME) {
+    if (flow_rate_last_time_ > 0 && delta_t > flow_rate_reset_time_) {
         flow_rate_push_value_(0);
     }
 }

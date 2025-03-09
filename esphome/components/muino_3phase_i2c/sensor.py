@@ -27,6 +27,7 @@ CONF_PREVIOUS_CONSUMPTION = "previous_consumption"
 CONF_CURRENT_CONSUMPTION = "current_consumption"
 CONF_MEASUREMENTS_CONSISTENCY= "measurements_consistency"
 CONF_FLOW_RATE = "flow_rate"
+CONF_FLOW_RATE_RESET_TIME = "reset_time"
 
 UNIT_LITER_PER_MINUTE = "L/min"
 
@@ -87,6 +88,7 @@ CONFIG_SCHEMA = cv.Schema({
         accuracy_decimals=2,
     ).extend({
         cv.Optional(CONF_UNIT_OF_MEASUREMENT, default=UNIT_LITER_PER_MINUTE): cv.string,
+        cv.Optional(CONF_FLOW_RATE_RESET_TIME, default=15): cv.positive_int,
     }),
 }).extend(cv.COMPONENT_SCHEMA).extend(i2c.i2c_device_schema(0x43))
 
@@ -146,3 +148,6 @@ async def to_code(config):
     if CONF_FLOW_RATE in config:
         sens = await sensor.new_sensor(config[CONF_FLOW_RATE])
         cg.add(var.set_flow_rate_sensor(sens))
+
+        if CONF_FLOW_RATE_RESET_TIME in config[CONF_FLOW_RATE]:
+            cg.add(var.set_flow_rate_reset_time(config[CONF_FLOW_RATE][CONF_FLOW_RATE_RESET_TIME]))

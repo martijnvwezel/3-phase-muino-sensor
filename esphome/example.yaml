@@ -64,6 +64,7 @@ sensor:
       name: "Measurements consistency"
     flow_rate:
       name: "Flow rate"
+      reset_time: 20  # Reset time in seconds
     sensor_a:
       name: "A"
     sensor_b:

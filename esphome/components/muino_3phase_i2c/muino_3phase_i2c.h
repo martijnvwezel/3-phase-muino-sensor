@@ -36,6 +36,7 @@ public:
     void set_current_consumption_sensor(sensor::Sensor *sensor) { current_consumption_sensor_ = sensor; }
     void set_measurements_consistency_sensor(binary_sensor::BinarySensor *sensor) { measurements_consistency_sensor_ = sensor; }
     void set_flow_rate_sensor(sensor::Sensor *sensor) { flow_rate_sensor_ = sensor; }
+    void set_flow_rate_reset_time(uint8_t reset_time) { flow_rate_reset_time_ = reset_time; }
 
     void reset_total();
     void reset_main_consumption();
@@ -114,6 +115,11 @@ protected:
     float flow_rate_last_time_ = 0;
     float flow_rate_values_[5] = {0};
     uint8_t flow_rate_index_ = 0;
+
+    // In the case of very low flow rates, the reset_time should be as large as possible
+    // because there is a risk of thinking that the flow has stopped between two phase detections.
+    // However, if reset_time is too high, we lose responsiveness.
+    uint8_t flow_rate_reset_time_ = 15;
 
     sensor::Sensor *index_sensor_{nullptr};
     sensor::Sensor *main_consumption_sensor_{nullptr};
