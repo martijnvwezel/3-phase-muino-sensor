@@ -476,6 +476,7 @@ void Muino3PhaseI2CSensor::set_led(bool state) {
 }
 
 void Muino3PhaseI2CSensor::update() {
+    static uint8_t status = 0;
     static uint32_t last_time = 0;
     uint32_t now = millis();
     char buffer[50];

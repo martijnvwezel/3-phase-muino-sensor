@@ -91,8 +91,6 @@ protected:
 
     bool init_ok_ = false;
 
-    uint8_t status = 0;
-
     uint32_t sen_a_dark_;
     uint32_t sen_b_dark_;
     uint32_t sen_c_dark_;
