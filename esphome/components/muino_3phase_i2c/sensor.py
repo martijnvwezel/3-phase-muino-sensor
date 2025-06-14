@@ -144,7 +144,7 @@ async def to_code(config):
 
     if CONF_PHASE in config:
         sens = await sensor.new_sensor(config[CONF_PHASE])
-        cg.add(var.set_phase_phase(sens))
+        cg.add(var.set_phase_sensor(sens))
 
     if CONF_MEASUREMENTS_CONSISTENCY in config:
         bin_sens = await binary_sensor.new_binary_sensor(config[CONF_MEASUREMENTS_CONSISTENCY])
