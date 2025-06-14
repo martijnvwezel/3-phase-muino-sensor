@@ -1,0 +1,102 @@
+substitutions:
+  name: watermeter
+  friendly_name: "WaterMeter"
+
+esphome:
+  name: $name
+
+esp32:
+  board: esp32dev
+
+
+# Add basic networking
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot in case of connection failure
+  ap:
+    ssid: "Watermeterhome Fallback"
+    password: "Watermeterhome Fallback"
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+ - platform: esphome
+   password: !secret ota_password
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/martijnvwezel/3-phase-muino-sensor
+    components: [ muino_3phase_i2c ]
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+  frequency: 50khz
+
+logger:
+  level: INFO
+
+sensor:
+  - platform: muino_3phase_i2c
+    id: water_meter_sensor
+    index:
+      name: "Index"
+    main_consumption:
+      name: "Main"
+    secondary_consumption:
+      name: "Secondary"
+    tertiary_consumption:
+      name: "Tertiary"
+    time_since_last_flow:
+      name: "Last flow"
+    previous_consumption:
+      name: "Previous consumption"
+    current_consumption:
+      name: "${friendly_name} Current consumption"
+    measurements_consistency:
+      name: "Measurements consistency"
+    flow_rate:
+      name: "Flow rate"
+      reset_time: 20  # Reset time in seconds
+    time_since_last_flow:
+      name: "Last flow"
+    sensor_a:
+      name: "A"
+    sensor_b:
+      name: "B"
+    sensor_c:
+      name: "C"
+    phase:
+      name: "Phase"
+
+button:
+  - platform: template
+    name: "Reset Water Meter"
+    on_press:
+      - lambda: 'id(water_meter_sensor).reset_total();'
+
+switch:
+  - platform: template
+    id: debugmodus
+    name: Debug mode
+    optimistic: true
+    icon: "mdi:bug"
+    turn_on_action:
+      - lambda: 'id(water_meter_sensor).set_debug_mode(true);'
+    turn_off_action:
+      - lambda: 'id(water_meter_sensor).set_debug_mode(false);'
+
+binary_sensor:
+  - platform: status
+    name: "Water Meter Status"
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version"
