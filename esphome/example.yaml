@@ -35,10 +35,10 @@ external_components:
     components: [ muino_3phase_i2c ]
 
 i2c:
-  sda: GPIO21
-  scl: GPIO22
+  sda: GPIO6
+  scl: GPIO7
   scan: true
-  frequency: 50khz
+  frequency: 125khz
 
 logger:
   level: INFO
