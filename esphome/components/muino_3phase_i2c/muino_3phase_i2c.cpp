@@ -478,7 +478,7 @@ void Muino3PhaseI2CSensor::update() {
     uint32_t now = millis();
     char buffer[50];
 
-    if (millis() - last_update_ >= 1000) {
+    if (millis() - last_update_ >= 100) {
         if (debug_mode_) {
             if (a_sensor_ != nullptr) {
                 snprintf(
