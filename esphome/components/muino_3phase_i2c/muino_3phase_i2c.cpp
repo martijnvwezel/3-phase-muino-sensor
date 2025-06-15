@@ -204,7 +204,8 @@ void Muino3PhaseI2CSensor::init_light_sensor_(uint8_t sensor_id) {
     }
 
     // Gain: x2, It: 100ms
-    uint8_t data_wr[2] = {0x00, (1 << 0)};
+    // 1<<11, 1<<12, 1<<9
+    uint8_t data_wr[2] = {0x00, (1 << 0)};  
     write_(VEML6030_I2C_ADDR_H, VEML6030_ALS_SD, (uint8_t*)&data_wr, 2);
 
     if (sensor_id == 0) {
