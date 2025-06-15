@@ -32,7 +32,7 @@ external_components:
   - source:
       type: git
       url: https://github.com/martijnvwezel/3-phase-muino-sensor
-    components: [ test ]
+    components: [ master ]
 
 i2c:
   sda: GPIO6
